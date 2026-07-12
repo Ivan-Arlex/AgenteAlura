@@ -12,6 +12,7 @@ load_dotenv()
 
 RUTA_FAISS = "faiss_index"
 MODELO_EMBEDDING = os.getenv("MODELO_EMBEDDING", "gemini-embedding-001")
+gemini_api_key = os.getenv("GEMINI_API_KEY")
 
 def obtener_vector_store():
     """Lee los archivos de la carpeta docs (PDF y Excel) y los corta en fragmentos/chunks
@@ -58,7 +59,7 @@ def procesar_vector_store():
     Carga el índice FAISS si ya existe localmente; de lo contrario, lo construye desde cero.
     """
 
-    embeddings = GoogleGenerativeAIEmbeddings(model=MODELO_EMBEDDING)
+    embeddings = GoogleGenerativeAIEmbeddings(model=MODELO_EMBEDDING, google_api_key=gemini_api_key)
     
     if os.path.exists(RUTA_FAISS):
         print("Base de datos FAISS encontrada. Cargando vectores de forma instantánea...")
