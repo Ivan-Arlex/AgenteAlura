@@ -47,6 +47,10 @@ def obtener_vector_store():
         except Exception as e:
             print(f"Error procesando {archivo.name}: {e}")
 
+    if not docs:
+        print("No se encontraron documentos válidos en la carpeta 'docs'.")
+        return None
+
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=2500, chunk_overlap=250)
     chunks = text_splitter.split_documents(docs)
     print(f"Total de chunks creados: {len(chunks)}")
@@ -59,25 +63,32 @@ def procesar_vector_store():
     Carga el índice FAISS si ya existe localmente; de lo contrario, lo construye desde cero.
     """
 
-    embeddings = GoogleGenerativeAIEmbeddings(model=MODELO_EMBEDDING, google_api_key=gemini_api_key)
-    
-    if os.path.exists(RUTA_FAISS):
-        print("Base de datos FAISS encontrada. Cargando vectores de forma instantánea...")
-    
-        vector_store = FAISS.load_local(RUTA_FAISS, embeddings, allow_dangerous_deserialization=True)
+    try:
+
+        embeddings = GoogleGenerativeAIEmbeddings(model=MODELO_EMBEDDING, google_api_key=gemini_api_key)
+        
+        if os.path.exists(RUTA_FAISS):
+            print("Base de datos FAISS encontrada. Cargando vectores de forma instantánea...")
+        
+            vector_store = FAISS.load_local(RUTA_FAISS, embeddings, allow_dangerous_deserialization=True)
+            return vector_store
+        
+        print("No se encontró una base de datos previa. Construyendo nuevo vector store...")
+        chunks = obtener_vector_store()
+        
+        if not chunks:
+            print("No se pudieron generar chunks. Revisa que la carpeta 'docs' tenga archivos válidos.")
+            return None
+
+        vector_store = FAISS.from_documents(chunks, embeddings)
+        vector_store.save_local(RUTA_FAISS)
+        print(f"¡Nueva base de datos FAISS guardada con éxito en '{RUTA_FAISS}'!")
+        
         return vector_store
     
-    print("No se encontró una base de datos previa. Construyendo nuevo vector store...")
-    chunks = obtener_vector_store()
-    
-    if not chunks:
-        raise ValueError("No se pudieron generar chunks. Revisa que la carpeta 'docs' tenga archivos válidos.")
-        
-    vector_store = FAISS.from_documents(chunks, embeddings)
-    vector_store.save_local(RUTA_FAISS)
-    print(f"¡Nueva base de datos FAISS guardada con éxito en '{RUTA_FAISS}'!")
-    
-    return vector_store
+    except Exception as e:
+        print(f"Error al procesar el vector store: {e}")
+        return None
 
 
 if __name__ == "__main__":
