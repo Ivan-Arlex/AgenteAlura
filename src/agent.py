@@ -7,7 +7,6 @@ from langchain_core.prompts import ChatPromptTemplate
 import os
 
 load_dotenv()
-
 modelo_gemini = os.getenv("MODELO_GEMINI")
 gemini_api_key = os.getenv("GEMINI_API_KEY")
 
@@ -82,48 +81,43 @@ def generar_respuesta(state: AgentState):
         print(f"Error generando respuesta: {e}")
         return {"respuesta": "Lo siento, ocurrió un error al generar la respuesta. Por favor, inténtalo de nuevo más tarde."}
 
+def respuesta_sin_contexto(state: AgentState):
+    """
+    ----------------------------------------------------------
+    Genera una respuesta cuando no hay contexto disponible.
+    ----------------------------------------------------------
+    """
+    return {"respuesta": "Lo siento, no pude encontrar información relevante para tu pregunta. Por favor, intenta con otra consulta relaciona con políticas de reembolso, logística o tiempos de entrega."}
+
+def respuesta_error_infraestructura(state: AgentState):
+    """
+    -------------------------------------------------------------------------
+    Se ejecuta cuando el sistema técnico no pudo inicializar el retriever.
+    -------------------------------------------------------------------------
+    """
+    return {
+        "respuesta": "Error técnico: El sistema de búsqueda no está disponible temporalmente. Por favor, contacta con el administrador del sistema."
+    }
 
 def determinar_siguiente_paso(state: AgentState):
     """
+    ----------------------------------------------------------------------------------
     Determina el siguiente paso en el flujo en base si hay constexto disponible o no.
+    ----------------------------------------------------------------------------------
     """
     if not state.get("contexto"):
         return "error en busqueda"
     
     return "contexto disponible"
 
-def validar_retriever():
+def validar_retriever(state: AgentState):
     """
-    Verifica si el retriever está correctamente inicializado.
+    --------------------------------------------------------------------------------------------------
+    Verifica si el retriever está correctamente inicializado (sin este objeto no se puede leer docs).
+    --------------------------------------------------------------------------------------------------
     """
     if retriever is None:
         print("El retriever no está inicializado. Asegúrate de que la base de datos FAISS se haya cargado correctamente.")
         return "error de infraestructura"
     return "continuar busqueda"
 
-if __name__ == "__main__":
-
-    pregunta_prueba = "¿Cuales son la politica de devoluciones?"
-    #pregunta_prueba = "¿Cuanto tarde mi pedido en llegar?"
-    #pregunta_prueba = "¿Puedo devolver unos audífonos personalizados que compré pero que ya no quiero?"
-    #pregunta_prueba = "¿Hablame de pagos a afiliados.?"
-    #pregunta_prueba = "¿Como puedo usar el número de orden, correo registrado o el enlace de seguimiento proporcionado?"
-    
-    print(f"--- Iniciando prueba del agente ---")
-    print(f"Pregunta: {pregunta_prueba}\n")
-    
-    estado = {"pregunta": pregunta_prueba}
-    
-    print("Buscando en la base de datos...")
-    resultado_busqueda = buscar_informacion(estado)
-    estado.update(resultado_busqueda)
-    
-    if estado.get("contexto"):
-        print(f"Se encontraron {len(estado['contexto'])} fragmentos relevantes. Generando respuesta...\n")
-        resultado_final = generar_respuesta(estado)
-        print("Respuesta del Agente:")
-        print("-" * 30)
-        print(resultado_final["respuesta"])
-        print("-" * 30)
-    else:
-        print("No se encontró información relevante para esa pregunta.")

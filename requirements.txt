@@ -12,3 +12,6 @@ openpyxl
 pandas
 streamlit
 python-dotenv
+graphviz
+
+#pip install -r requirements.txt

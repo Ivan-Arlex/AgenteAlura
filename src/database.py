@@ -10,16 +10,22 @@ from langchain_community.vectorstores import FAISS
 
 load_dotenv()
 
-RUTA_FAISS = "faiss_index"
+BASE_DIR = Path(__file__).resolve().parent
+RUTA_FAISS = BASE_DIR / "faiss_index"
 MODELO_EMBEDDING = os.getenv("MODELO_EMBEDDING", "gemini-embedding-001")
 gemini_api_key = os.getenv("GEMINI_API_KEY")
+
 
 def obtener_vector_store():
     """Lee los archivos de la carpeta docs (PDF y Excel) y los corta en fragmentos/chunks
     ."""
     docs = []
-    carpeta_docs = Path("./docs")
-    
+    BASE_DIR = Path(__file__).resolve().parent
+    carpeta_docs = Path(BASE_DIR, "docs")
+
+    print("Ruta docs:", carpeta_docs)
+    print("Existe:", carpeta_docs.exists())
+
     for archivo in carpeta_docs.glob("*.*"):
         extension = archivo.suffix.lower()
         try:
@@ -89,7 +95,3 @@ def procesar_vector_store():
     except Exception as e:
         print(f"Error al procesar el vector store: {e}")
         return None
-
-
-if __name__ == "__main__":
-    procesar_vector_store()
