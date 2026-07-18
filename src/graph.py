@@ -1,6 +1,6 @@
 from agent import buscar_informacion, generar_respuesta, determinar_siguiente_paso, respuesta_error_infraestructura, respuesta_sin_contexto, validar_retriever, AgentState
 from langgraph.graph import StateGraph, START, END 
-
+import os
 
 grafo_compilado = None
 
@@ -30,7 +30,7 @@ def crear_grafo():
     return workflow.compile()
 
 
-import os
+
 
 def generar_visualizacion(grafo):
     """Genera y guarda la imagen del grafo dentro de la carpeta assets."""
@@ -50,7 +50,7 @@ def generar_visualizacion(grafo):
     except Exception as e:
         print(f"Error al generar la imagen: {e}")
 
-def obtener_agente():
+def obtener_grafo():
     """
     Retorna la instancia única del grafo compilado (Singleton).
     Se compila una sola vez cuando se solicita por primera vez.
@@ -59,24 +59,27 @@ def obtener_agente():
     if grafo_compilado is None:
         grafo_compilado = crear_grafo()
 
-        generar_visualizacion(grafo_compilado)
+        if os.getenv("GENERAR_GRAFO") == "True":
+            generar_visualizacion(grafo_compilado)
 
     return grafo_compilado
 
 def procesar_consulta(pregunta_usuario: str)-> str:
     """
     Función principal para procesar la consulta del usuario.
-    - Obtiene la instancia del grafo de la funcion obtener_agente (patron Singleton).
+    - Obtiene la instancia del grafo de la funcion obtener_grafo (patron Singleton).
     """
 
     print(f"\n--- Procesando consulta: '{pregunta_usuario}' ---")
 
-    grafo = obtener_agente()
+    grafo = obtener_grafo()
     
     estado_inicial = {"pregunta": pregunta_usuario}
     
     resultado = grafo.invoke(estado_inicial)
     
+    print("")
+    print("-"*50)
     print("Respuesta final del agente:")
     print(resultado.get("respuesta", "No se obtuvo respuesta."))
     return resultado.get("respuesta", "No se obtuvo respuesta.")

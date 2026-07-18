@@ -10,6 +10,9 @@ load_dotenv()
 modelo_gemini = os.getenv("MODELO_GEMINI")
 gemini_api_key = os.getenv("GEMINI_API_KEY")
 
+llm_gemini = GoogleGenerativeAI(model=modelo_gemini,
+                                 google_api_key=gemini_api_key,  temperature=0.3)
+
 class AgentState(TypedDict, total=False):
     pregunta: str
     contexto: List[str] 
@@ -17,16 +20,8 @@ class AgentState(TypedDict, total=False):
 
 
 retriever = None
-vectorstore = procesar_vector_store()
+vectorstore = None
 
-if vectorstore is not None:
-    retriever = vectorstore.as_retriever(
-        search_type="similarity_score_threshold",
-        search_kwargs={"score_threshold": 0.3, "k": 4}
-    )
-
-llm_gemini = GoogleGenerativeAI(model=modelo_gemini,
-                                 google_api_key=gemini_api_key,  temperature=0.3)
 
 SYSTEM_PROMPT = """
 Eres un asistente experto de BimBam Buy, caracterizado por un trato ágil, 
@@ -47,8 +42,38 @@ prompt_template = ChatPromptTemplate.from_messages([
     ("human", "{pregunta}")
 ])
 
+def get_vectorstores():
+
+    global vectorstore
+
+    if vectorstore is None:
+        vectorstore = procesar_vector_store()
+        print("Vectorstore cargado correctamente.")
+        return vectorstore
+    
+    return vectorstore
+
+def get_retriever():
+
+    global retriever, vectorstore
+
+    if retriever is not None:
+        return retriever
+
+    vectorstore = get_vectorstores()
+        
+    if vectorstore is not None:
+        retriever = vectorstore.as_retriever(
+            search_type="similarity_score_threshold",
+            search_kwargs={"score_threshold": 0.3, "k": 4}
+        )
+        print("Retriever inicializado correctamente.")
+    
+    return retriever
 
 def buscar_informacion(state: AgentState):
+
+    global retriever
 
     documentos = retriever.invoke(state["pregunta"])
 
@@ -60,6 +85,8 @@ def buscar_informacion(state: AgentState):
 def generar_respuesta(state: AgentState):
 
     try:
+        global llm_gemini, prompt_template
+
         contexto_unificado = "\n\n".join(state["contexto"])
         
         chain = prompt_template | llm_gemini
@@ -116,6 +143,10 @@ def validar_retriever(state: AgentState):
     Verifica si el retriever está correctamente inicializado (sin este objeto no se puede leer docs).
     --------------------------------------------------------------------------------------------------
     """
+    global retriever
+
+    get_retriever()
+
     if retriever is None:
         print("El retriever no está inicializado. Asegúrate de que la base de datos FAISS se haya cargado correctamente.")
         return "error de infraestructura"
