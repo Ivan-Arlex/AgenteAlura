@@ -2,6 +2,10 @@
 
 ### **`Link de la Aplicación (Deploy):`** https://agentealura-qpgznc4kywgtizr67snetq.streamlit.app/
 
+### Deploy de App:
+
+![deploy](assets/app-deploy.png)
+
 ## 📖 Descripción General
 
 Este proyecto consiste en el desarrollo de un aagente inteligente en Python para responder consultas relacionadas con la plataforma de comercio electrónico BimBam Buy.
@@ -448,7 +452,7 @@ http://localhost:8501
 
 Ten en cuenta que la disponibilidad puede variar según el país, la categoría del producto y el monto de la compra. Algunos métodos podrían requerir validación adicional o no estar disponibles para ciertas promociones. ✅
 ```
-![respuesta 1](assets\metodos-pagos.png)
+![respuesta 1](assets/metodos-pagos.png)
 ---
 
 ### Pregunta
@@ -462,7 +466,7 @@ Ten en cuenta que la disponibilidad puede variar según el país, la categoría 
 
 Una vez que tu reembolso es aprobado, se procesa en un plazo de entre 5 y 10 días hábiles, dependiendo del método de pago y el país de origen de la compra. 💳 Generalmente, los reembolsos se realizan al mismo medio de pago utilizado en la compra, salvo que haya una imposibilidad técnica o normativa.
 ```
-![respues 2](assets\politica-reembolso.png)
+![respues 2](assets/politica-reembolso.png)
 ---
 
 ### Pregunta
@@ -490,7 +494,7 @@ El proceso se divide en:
 
 Ten en cuenta que en campañas especiales o alta demanda, los tiempos pueden ser superiores a los estimados.
 ``` 
-![respuesta 3](assets\tiempo-envio.png)
+![respuesta 3](assets/tiempo-envio.png)
 ---
 
 La aplicación principal se implementa en:
