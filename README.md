@@ -1,4 +1,6 @@
-# 🛡️ BimBam Buy - Agente Inteligente con RAG y LangGraph
+# 🛡️ Agente Inteligente con RAG y LangGraph - BimBam Buy (Agente Alura)
+
+### **`Link de la Aplicación (Deploy):`** https://agentealura-qpgznc4kywgtizr67snetq.streamlit.app/
 
 ## 📖 Descripción General
 
@@ -73,7 +75,7 @@ LangGraph se encarga de:
 
 # 🧠 Grafo del Agente
 
-![Flujo del Agente](assets/grafo_flujo.png)
+![Grafo del Flujo](assets/grafo_flujo.png)
 
 El grafo representa el flujo completo del agente.
 
@@ -233,6 +235,7 @@ agente_alura/
 ├── .env
 ├── requirements.txt
 └── README.md
+
 ```
 
 ---
@@ -347,7 +350,7 @@ Y genera una respuesta basada exclusivamente en dicha información.
 Clonar el repositorio:
 
 ```bash
-git clone <url-del-repositorio>
+git clone https://github.com/Ivan-Arlex/AgenteAlura.git
 ```
 
 Entrar al proyecto:
@@ -395,7 +398,7 @@ MODELO_GEMINI=gemini-2.5-flash
 
 MODELO_EMBEDDING=gemini-embedding-001
 
-GENERAR_GRAFO="False" (debe ponerse False si la imagen ya fue generada)
+GENERAR_GRAFO="True" (debe ponerse False si la imagen ya fue generada)
 ```
 
 ---
@@ -421,9 +424,7 @@ http://localhost:8501
 - ¿Cuáles son los tiempos de entrega?
 - ¿Cómo solicitar un reembolso?
 - ¿Cómo funciona el programa de afiliados?
-- ¿Qué productos tienen disponibles?
-- ¿Cómo puedo hacer seguimiento a un pedido?
-- ¿Qué garantías ofrecen?
+- ¿Cuál es la política de reembolso?
 
 ---
 
@@ -435,8 +436,19 @@ http://localhost:8501
 
 ### Respuesta
 
-> 
+```text
+¡Claro! 💳 En BimBam Buy, aceptamos varios métodos de pago para tu comodidad:
 
+• Tarjeta de crédito
+• Tarjeta de débito
+• Transferencia bancaria
+• Pago en efectivo en puntos habilitados
+• Billeteras digitales disponibles por país
+• Cuotas o financiamiento, cuando aplique
+
+Ten en cuenta que la disponibilidad puede variar según el país, la categoría del producto y el monto de la compra. Algunos métodos podrían requerir validación adicional o no estar disponibles para ciertas promociones. ✅
+```
+![respuesta 1](assets\metodos-pagos.png)
 ---
 
 ### Pregunta
@@ -445,8 +457,12 @@ http://localhost:8501
 
 ### Respuesta
 
-> 
+```text
+¡Claro! La política de BimBam Buy establece las condiciones, plazos y pasos para las solicitudes de reembolso, buscando una experiencia clara y ágil. 📦
 
+Una vez que tu reembolso es aprobado, se procesa en un plazo de entre 5 y 10 días hábiles, dependiendo del método de pago y el país de origen de la compra. 💳 Generalmente, los reembolsos se realizan al mismo medio de pago utilizado en la compra, salvo que haya una imposibilidad técnica o normativa.
+```
+![respues 2](assets\politica-reembolso.png)
 ---
 
 ### Pregunta
@@ -455,8 +471,26 @@ http://localhost:8501
 
 ### Respuesta
 
-> 
+```text
+¡Hola! 📦 Los tiempos de entrega en BimBam Buy dependen de varios factores como el país, ciudad, zona de cobertura, tamaño y peso del producto, inventario, validaciones de pago y eventos operativos o climáticos.
 
+El proceso se divide en:
+
+• Preparación del pedido:
+
+◦ Validación de pago: 0 a 1 día hábil 💳
+◦ Alistamiento y empaque: 1 a 2 días hábiles
+◦ Despacho al operador logístico: 1 día hábil adicional 🚚
+
+• Entrega estimada:
+
+◦ Zonas urbanas principales: 2 a 5 días hábiles ✅
+◦ Zonas secundarias: 4 a 8 días hábiles
+◦ Zonas de cobertura extendida: 6 a 12 días hábiles
+
+Ten en cuenta que en campañas especiales o alta demanda, los tiempos pueden ser superiores a los estimados.
+``` 
+![respuesta 3](assets\tiempo-envio.png)
 ---
 
 La aplicación principal se implementa en:
@@ -487,6 +521,13 @@ obtener_grafo()
 
 Esto evita recompilar el workflow en cada consulta.
 
+```python
+get_vectorstores()
+get_retriever()
+```
+
+Con `get_vectorstores()` y `get_retriever()` se evita que cree un objeto nuevo por cada consulta que realize el usuario.
+
 ---
 
 # ✨ Características del Proyecto
@@ -504,10 +545,8 @@ Esto evita recompilar el workflow en cada consulta.
 
 ---
 
-# 👨‍💻 Autor Iván Arlex Buenaventura Riascos
+# 🧑🏽‍💻 Autor: Iván Arlex Buenaventura Riascos 
 
-Proyecto desarrollado para implementar un agente inteligente basado en:
+💻 Proyecto desarrollado para implementar un agente inteligente basado en:
 
-**RAG + FAISS + Google Gemini + LangGraph + Streamlit**
-
-orientado a mejorar la experiencia de atención al cliente en la plataforma **BimBam Buy**.
+**RAG + FAISS + Google Gemini + LangChain + LangGraph + Streamlit**🤖💻.
