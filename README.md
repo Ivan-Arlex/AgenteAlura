@@ -336,7 +336,7 @@ Y genera una respuesta basada exclusivamente en dicha información.
 
 | Tecnología | Uso |
 |------------|------|
-| Python | Lenguaje principal |
+| Python 3.14.6| Lenguaje principal |
 | Streamlit | Interfaz gráfica |
 | LangChain | Integración LLM |
 | LangGraph | Orquestación(Grafo) |
