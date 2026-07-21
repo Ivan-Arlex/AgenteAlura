@@ -1,4 +1,4 @@
-from agent import buscar_informacion, generar_respuesta, determinar_siguiente_paso, respuesta_error_infraestructura, respuesta_sin_contexto, validar_retriever, AgentState
+from agent import AgentState, buscar_contexto, generar_respuesta
 from langgraph.graph import StateGraph, START, END 
 import os
 
@@ -10,22 +10,12 @@ def crear_grafo():
     """
     workflow = StateGraph(AgentState)
 
-    workflow.add_node("nodo_informacion", buscar_informacion)
+    workflow.add_node("nodo_informacion", buscar_contexto)
     workflow.add_node("nodo_respuesta", generar_respuesta)
-    workflow.add_node("nodo_sin_contexto", respuesta_sin_contexto)
-    workflow.add_node("nodo_error_tecnico", respuesta_error_infraestructura)
 
-    workflow.add_conditional_edges(START, validar_retriever, {
-        "error de infraestructura": "nodo_error_tecnico",
-        "continuar busqueda": "nodo_informacion"
-    })
-    workflow.add_conditional_edges("nodo_informacion", determinar_siguiente_paso, {
-        "error en busqueda": "nodo_sin_contexto",
-        "contexto disponible": "nodo_respuesta"
-    })
+    workflow.add_edge(START, "nodo_informacion")
+    workflow.add_edge("nodo_informacion", "nodo_respuesta")
     workflow.add_edge("nodo_respuesta", END)
-    workflow.add_edge("nodo_sin_contexto", END)
-    workflow.add_edge("nodo_error_tecnico", END)
 
     return workflow.compile()
 

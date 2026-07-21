@@ -16,11 +16,10 @@ MODELO_EMBEDDING = os.getenv("MODELO_EMBEDDING", "gemini-embedding-001")
 gemini_api_key = os.getenv("GEMINI_API_KEY")
 
 
-def obtener_vector_store():
+def crear_chunks():
     """Lee los archivos de la carpeta docs (PDF y Excel) y los corta en fragmentos/chunks
     ."""
     docs = []
-    BASE_DIR = Path(__file__).resolve().parent
     carpeta_docs = Path(BASE_DIR, "docs")
 
     print("Ruta docs:", carpeta_docs)
@@ -80,7 +79,7 @@ def procesar_vector_store():
             return vector_store
         
         print("No se encontró una base de datos previa. Construyendo nuevo vector store...")
-        chunks = obtener_vector_store()
+        chunks = crear_chunks()
         
         if not chunks:
             print("No se pudieron generar chunks. Revisa que la carpeta 'docs' tenga archivos válidos.")

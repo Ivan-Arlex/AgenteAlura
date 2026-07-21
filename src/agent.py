@@ -42,25 +42,16 @@ prompt_template = ChatPromptTemplate.from_messages([
     ("human", "{pregunta}")
 ])
 
-def get_vectorstores():
-
-    global vectorstore
-
-    if vectorstore is None:
-        vectorstore = procesar_vector_store()
-        print("Vectorstore cargado correctamente.")
-        return vectorstore
-    
-    return vectorstore
-
-def get_retriever():
+def inicializar_retriever():
 
     global retriever, vectorstore
 
     if retriever is not None:
         return retriever
 
-    vectorstore = get_vectorstores()
+    if vectorstore is None:
+        vectorstore = procesar_vector_store()
+        print("Vectorstore cargado correctamente.")
         
     if vectorstore is not None:
         retriever = vectorstore.as_retriever(
@@ -71,19 +62,38 @@ def get_retriever():
     
     return retriever
 
-def buscar_informacion(state: AgentState):
+def buscar_contexto(state: AgentState):
 
-    global retriever
+    active_retriever = inicializar_retriever()
 
-    documentos = retriever.invoke(state["pregunta"])
-
-    textos_encontrados = [doc.page_content for doc in documentos]
+    if active_retriever is None:
+        print("El retriever no está inicializado. Asegúrate de que la base de datos FAISS se haya cargado correctamente.")
+        return {
+            "contexto": [],
+            "respuesta": "Error técnico: El sistema de búsqueda no está disponible temporalmente. Por favor, contacta con el administrador del sistema."}
     
-    return {"contexto": textos_encontrados}
+    try:
+        documentos = active_retriever.invoke(state["pregunta"])
+
+        textos_encontrados = [doc.page_content for doc in documentos]
+        
+        return {"contexto": textos_encontrados}
+    
+    except Exception as e:
+        print(f"Error al buscar contexto: {e}")
+        return {
+            "contexto": [],
+            "respuesta": "Error técnico: No se pudo realizar la búsqueda de información. Por favor, inténtalo de nuevo más tarde."}
 
 
 def generar_respuesta(state: AgentState):
 
+    if (state.get("contexto") is None or not state["contexto"]) and retriever is not None:
+        return {"respuesta": "No se encontró información relacionada con tu consulta. Puedo ayudarte con dudas sobre **políticas de reembolso, logística o tiempos de entrega**."}
+
+    if state.get("respuesta") is not None:
+        return {"respuesta": state["respuesta"]}
+    
     try:
         global llm_gemini, prompt_template
 
@@ -108,47 +118,4 @@ def generar_respuesta(state: AgentState):
         print(f"Error generando respuesta: {e}")
         return {"respuesta": "Lo siento, ocurrió un error al generar la respuesta. Por favor, inténtalo de nuevo más tarde."}
 
-def respuesta_sin_contexto(state: AgentState):
-    """
-    ----------------------------------------------------------
-    Genera una respuesta cuando no hay contexto disponible.
-    ----------------------------------------------------------
-    """
-    return {"respuesta": "Lo siento, no pude encontrar información relevante para tu pregunta. Por favor, intenta con otra consulta relaciona con políticas de reembolso, logística o tiempos de entrega."}
-
-def respuesta_error_infraestructura(state: AgentState):
-    """
-    -------------------------------------------------------------------------
-    Se ejecuta cuando el sistema técnico no pudo inicializar el retriever.
-    -------------------------------------------------------------------------
-    """
-    return {
-        "respuesta": "Error técnico: El sistema de búsqueda no está disponible temporalmente. Por favor, contacta con el administrador del sistema."
-    }
-
-def determinar_siguiente_paso(state: AgentState):
-    """
-    ----------------------------------------------------------------------------------
-    Determina el siguiente paso en el flujo en base si hay constexto disponible o no.
-    ----------------------------------------------------------------------------------
-    """
-    if not state.get("contexto"):
-        return "error en busqueda"
-    
-    return "contexto disponible"
-
-def validar_retriever(state: AgentState):
-    """
-    --------------------------------------------------------------------------------------------------
-    Verifica si el retriever está correctamente inicializado (sin este objeto no se puede leer docs).
-    --------------------------------------------------------------------------------------------------
-    """
-    global retriever
-
-    get_retriever()
-
-    if retriever is None:
-        print("El retriever no está inicializado. Asegúrate de que la base de datos FAISS se haya cargado correctamente.")
-        return "error de infraestructura"
-    return "continuar busqueda"
 

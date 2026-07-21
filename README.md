@@ -70,9 +70,10 @@ LangGraph se encarga de:
 
 - Validar que el Retriever esté disponible.
 - Ejecutar la búsqueda semántica.
-- Determinar si existe contexto suficiente.
-- Manejar errores de infraestructura.
-- Generar respuestas.
+- Generar respuestas, en esta generacion de respusta se: 
+  - Determinar si existe contexto suficiente.
+  - Manejar errores de infraestructura.
+  - Responde en base a la validaciones
 - Finalizar correctamente el flujo.
 
 ---
@@ -85,59 +86,25 @@ El grafo representa el flujo completo del agente.
 
 ### 1. `START`
 
-Punto inicial del flujo.
-
-Antes de realizar cualquier búsqueda, se verifica que el sistema de recuperación esté disponible.
-
-Se ejecuta:
-
-```python
-validar_retriever()
-```
-
----
-
-### 2. Validación del Retriever
-
-Existen dos posibles caminos:
-
-#### ✅ Retriever disponible
-
-```
-continuar busqueda
-```
-
-Se dirige hacia:
+Punto inicial del flujo y que se dirige hacia:
 
 ```
 nodo_informacion
 ```
 
-#### ❌ Error técnico
-
-```
-error de infraestructura
-```
-
-Se dirige hacia:
-
-```
-nodo_error_tecnico
-```
-
 ---
-
-### 3. `nodo_informacion`
+### 2. `nodo_informacion`
 
 Ejecuta:
 
 ```python
-buscar_informacion()
+buscar_contexto()
 ```
 
 Este nodo:
 
-- consulta FAISS;
+- valida que el retriever este inicializado
+- consulta FAISS si el retriever esta disponible.
 - recupera documentos relevantes;
 - extrae el contexto necesario.
 
@@ -153,66 +120,29 @@ k = 4
 
 ---
 
-### 4. Decisión del flujo
-
-Se evalúa si existe contexto relevante:
-
-```python
-determinar_siguiente_paso()
-```
-
-Posibles resultados:
-
-#### Existe contexto
-
-```
-contexto disponible
-```
-
-→ `nodo_respuesta`
-
-#### No existe contexto
-
-```
-error en busqueda
-```
-
-→ `nodo_sin_contexto`
-
----
-
-### 5. `nodo_respuesta`
+### 3. `nodo_respuesta`
 
 Ejecuta:
 
 ```python
 generar_respuesta()
 ```
+Esta funcion puede tomar 3 caminos:
 
-Se utiliza Google Gemini junto con un prompt diseñado para:
+- Si no hay contexto y el retriever esta inicializado responde que no se encontro informacion y redirige al usuario a preguntas validad.
 
-- responder únicamente con el contexto;
-- evitar alucinaciones;
-- mantener un tono profesional;
-- generar respuestas breves y amigables.
+- Si del nodo anterio ya viene una respuesta y sin contexto, no continua y retorna esa misma respuesta (que sera de un error tecnico)
 
----
+- Se utiliza Google Gemini junto con un prompt diseñado para:
 
-### 6. `nodo_sin_contexto`
-
-Se ejecuta cuando no existe información suficiente en los documentos.
-
-El agente informa al usuario que no encontró información relacionada.
+   - responder únicamente con el contexto;
+   - evitar alucinaciones;
+   - mantener un tono profesional;
+   - generar respuestas breves y amigables.
 
 ---
 
-### 7. `nodo_error_tecnico`
-
-Se ejecuta cuando el sistema no puede inicializar el Retriever o la base vectorial.
-
----
-
-### 8. `END`
+### 4. `END`
 
 Finaliza la ejecución del flujo.
 
@@ -398,7 +328,7 @@ Crear un archivo `.env`:
 ```env
 GEMINI_API_KEY=TU_API_KEY
 
-MODELO_GEMINI=gemini-2.5-flash
+MODELO_GEMINI=gemini-3.1-flash-lite
 
 MODELO_EMBEDDING=gemini-embedding-001
 
@@ -452,7 +382,7 @@ http://localhost:8501
 
 Ten en cuenta que la disponibilidad puede variar según el país, la categoría del producto y el monto de la compra. Algunos métodos podrían requerir validación adicional o no estar disponibles para ciertas promociones. ✅
 ```
-![respuesta 1](assets/metodos-pagos.png)
+![respuesta](assets/metodos-pagos.png)
 ---
 
 ### Pregunta
@@ -466,7 +396,7 @@ Ten en cuenta que la disponibilidad puede variar según el país, la categoría 
 
 Una vez que tu reembolso es aprobado, se procesa en un plazo de entre 5 y 10 días hábiles, dependiendo del método de pago y el país de origen de la compra. 💳 Generalmente, los reembolsos se realizan al mismo medio de pago utilizado en la compra, salvo que haya una imposibilidad técnica o normativa.
 ```
-![respues 2](assets/politica-reembolso.png)
+![respuesta](assets/politica-reembolso.png)
 ---
 
 ### Pregunta
@@ -494,7 +424,7 @@ El proceso se divide en:
 
 Ten en cuenta que en campañas especiales o alta demanda, los tiempos pueden ser superiores a los estimados.
 ``` 
-![respuesta 3](assets/tiempo-envio.png)
+![respuesta](assets/tiempo-envio.png)
 ---
 
 La aplicación principal se implementa en:
@@ -526,11 +456,10 @@ obtener_grafo()
 Esto evita recompilar el workflow en cada consulta.
 
 ```python
-get_vectorstores()
-get_retriever()
+inicializar_retriever()
 ```
 
-Con `get_vectorstores()` y `get_retriever()` se evita que cree un objeto nuevo por cada consulta que realize el usuario.
+Con `inicializar_retriever()` se evita que  se cree un objeto (ritriever y vectorstore) nuevo por cada consulta que realize el usuario.
 
 ---
 
