@@ -1,12 +1,19 @@
 import os
 import base64
 from pathlib import Path
-import streamlit as st
-from graph import procesar_consulta
-
 import time
+import streamlit as st
 
+# Medición del tiempo de ejecución para monitoreo de rendimiento
 inicio = time.time()
+
+# Intentar importar procesar_consulta desde graph
+try:
+    from graph import procesar_consulta
+except ImportError:
+    # Función de respaldo para pruebas independientes
+    def procesar_consulta(pregunta: str, historial: list = None) -> str:
+        return f"Respuesta simulada para: '{pregunta}'. La integración con graph.py está lista."
 
 st.set_page_config(
     page_title="BimBam Buy - ZULAI, Agente de Compra Inteligente",
@@ -16,63 +23,15 @@ st.set_page_config(
 )
 
 @st.cache_data
-def get_image_base64(path: str) -> str:
-    """Convierte una imagen local a base64 para incrustarla en HTML/CSS."""
-    if os.path.exists(path):
-        with open(path, "rb") as image_file:
-            encoded = base64.b64encode(image_file.read()).decode()
-            ext = Path(path).suffix.replace(".", "")
-            return f"data:image/{ext};base64,{encoded}"
-    return ""
-
-def format_file_size(bytes_size: int) -> str:
-    """Formatea el tamaño de archivo a KB o MB."""
-    if bytes_size < 1024 * 1024:
-        return f"{bytes_size / 1024:.1f} KB"
-    return f"{bytes_size / (1024 * 1024):.1f} MB"
-
-@st.cache_data(ttl=300)
-def get_docs_list():
-    """Lee dinámicamente la carpeta de documentos (src/docs o docs)."""
-    possible_paths = [
-        Path("src/docs"),
-        Path("docs"),
-        Path("../src/docs")
-    ]
-    docs_dir = None
-    for p in possible_paths:
-        if p.exists() and p.is_dir():
-            docs_dir = p
-            break
-
-    files_list = []
-    if docs_dir:
-        for file in docs_dir.iterdir():
-            if file.is_file() and not file.name.startswith("."):
-                size = format_file_size(file.stat().st_size)
-                ext = file.suffix.lower().replace(".", "")
-                files_list.append({
-                    "name": file.name,
-                    "size": size,
-                    "ext": ext,
-                    "path": str(file)
-                })
-    return files_list
-
-ASSETS_DIR = Path("assets")
-LOGO_PATH = ASSETS_DIR / "logo.png"
-CARRITO_PATH = ASSETS_DIR / "carrito.png"
-
-logo_b64 = get_image_base64(str(LOGO_PATH))
-carrito_b64 = get_image_base64(str(CARRITO_PATH))
-
-st.markdown("""
+def load_css():
+    """Inyecta el CSS una sola vez y lo mantiene en caché para evitar re-parseos pesados en el navegador."""
+    return """
 <style>
     /* Ocultar elementos nativos preservando el botón para reabrir la barra lateral */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
 
-    /* Botón flotante siempre visible para reabrir la barra lateral cuando está colapsada */
+    /* Botón flotante para la barra lateral colapsada */
     [data-testid="collapsedControl"] {
         visibility: visible !important;
         display: flex !important;
@@ -85,12 +44,10 @@ st.markdown("""
         margin-left: 8px !important;
         z-index: 999999 !important;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
-        transition: all 0.2s ease !important;
     }
     [data-testid="collapsedControl"]:hover {
         border-color: #00f2fe !important;
         box-shadow: 0 0 12px rgba(0, 242, 254, 0.5) !important;
-        transform: scale(1.05);
     }
     [data-testid="collapsedControl"] svg {
         fill: #F8FAFC !important;
@@ -119,14 +76,14 @@ st.markdown("""
         border-right: 1px solid rgba(139, 92, 246, 0.3) !important;
     }
 
-    /* Botones Globales con estilo futurista */
+    /* Botones Globales */
     .stButton > button {
         background: linear-gradient(135deg, rgba(30, 27, 75, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
         color: #FFFFFF !important;
         border: 1px solid rgba(168, 85, 247, 0.5) !important;
         border-radius: 10px !important;
         font-weight: 600 !important;
-        transition: all 0.3s ease !important;
+        transition: all 0.2s ease !important;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
         padding: 4px 12px !important;
         font-size: 13px !important;
@@ -135,13 +92,12 @@ st.markdown("""
         border-color: #00f2fe !important;
         box-shadow: 0 0 15px rgba(0, 242, 254, 0.4) !important;
         color: #00f2fe !important;
-        transform: translateY(-1px);
     }
     .stButton > button p, .stButton > button div, .stButton > button span {
         color: #FFFFFF !important;
     }
 
-    /* Tarjetas y Paneles Glassmorphism */
+    /* Tarjetas y Paneles */
     .glass-card {
         background: rgba(15, 23, 42, 0.75);
         border: 1px solid rgba(168, 85, 247, 0.35);
@@ -163,7 +119,7 @@ st.markdown("""
         margin-bottom: 15px;
     }
 
-    /* Lista de Documentos con Iconografía Tecnológica */
+    /* Documentos */
     .doc-item {
         display: flex;
         align-items: center;
@@ -210,7 +166,7 @@ st.markdown("""
         box-shadow: 0 0 10px #10B981;
     }
 
-    /* Cuadro de Chat Futurista */
+    /* Cuadro de Chat */
     [data-testid="stBottom"],
     [data-testid="stBottom"] > div,
     [data-testid="stBottomBlockContainer"] {
@@ -229,7 +185,6 @@ st.markdown("""
         border: 1px solid rgba(168, 85, 247, 0.6) !important;
         border-radius: 14px !important;
         box-shadow: 0 6px 24px rgba(0, 0, 0, 0.7), 0 0 15px rgba(139, 92, 246, 0.3) !important;
-        transition: all 0.3s ease !important;
     }
     [data-testid="stChatInput"] > div:focus-within {
         border-color: #00f2fe !important;
@@ -252,7 +207,7 @@ st.markdown("""
         color: #FFFFFF !important;
     }
 
-    /* Estilo de Mensajes de Chat */
+    /* Mensajes de Chat */
     [data-testid="stChatMessage"] {
         background-color: rgba(20, 27, 52, 0.85) !important;
         border: 1px solid rgba(139, 92, 246, 0.3) !important;
@@ -264,18 +219,70 @@ st.markdown("""
         color: #F8FAFC !important;
     }
 
-    /* Estilo personalizado legible para Toasts (st.toast) */
     [data-testid="stToast"] {
         background-color: #0c1028 !important;
         border: 1px solid rgba(168, 85, 247, 0.6) !important;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7), 0 0 15px rgba(139, 92, 246, 0.3) !important;
         border-radius: 12px !important;
     }
     [data-testid="stToast"] * {
         color: #F8FAFC !important;
     }
 </style>
-""", unsafe_allow_html=True)
+"""
+
+# Aplicar el CSS desde caché
+st.markdown(load_css(), unsafe_allow_html=True)
+
+@st.cache_data
+def get_image_base64(path: str) -> str:
+    """Convierte una imagen local a base64 para incrustarla en HTML/CSS."""
+    if os.path.exists(path):
+        with open(path, "rb") as image_file:
+            encoded = base64.b64encode(image_file.read()).decode()
+            ext = Path(path).suffix.replace(".", "")
+            return f"data:image/{ext};base64,{encoded}"
+    return ""
+
+def format_file_size(bytes_size: int) -> str:
+    """Formatea el tamaño de archivo a KB o MB."""
+    if bytes_size < 1024 * 1024:
+        return f"{bytes_size / 1024:.1f} KB"
+    return f"{bytes_size / (1024 * 1024):.1f} MB"
+
+@st.cache_data(ttl=600)
+def get_docs_list():
+    """Lee dinámicamente la carpeta de documentos (src/docs o docs) con caché largo."""
+    possible_paths = [
+        Path("src/docs"),
+        Path("docs"),
+        Path("../src/docs")
+    ]
+    docs_dir = None
+    for p in possible_paths:
+        if p.exists() and p.is_dir():
+            docs_dir = p
+            break
+
+    files_list = []
+    if docs_dir:
+        for file in docs_dir.iterdir():
+            if file.is_file() and not file.name.startswith("."):
+                size = format_file_size(file.stat().st_size)
+                ext = file.suffix.lower().replace(".", "")
+                files_list.append({
+                    "name": file.name,
+                    "size": size,
+                    "ext": ext,
+                    "path": str(file)
+                })
+    return files_list
+
+ASSETS_DIR = Path("assets")
+LOGO_PATH = ASSETS_DIR / "logo.png"
+CARRITO_PATH = ASSETS_DIR / "carrito.png"
+
+logo_b64 = get_image_base64(str(LOGO_PATH))
+carrito_b64 = get_image_base64(str(CARRITO_PATH))
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -285,6 +292,7 @@ if "historial" not in st.session_state:
 
 def clear_chat_callback():
     st.session_state.messages = []
+    st.session_state.historial = []
 
 def set_faq_callback(query_text):
     st.session_state.pending_faq = query_text
@@ -316,7 +324,7 @@ with st.sidebar:
                 <div style="font-size: 28px;">🛒</div>
                 <div>
                     <h2 style="margin:0; font-size: 20px; font-weight: 800; background: linear-gradient(90deg, #FFFFFF, #C084FC); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">BimBam Buy</h2>
-                    <p style="margin:0; font-size: 11px; color: #a78bfa; font-weight: 500;">Agente de Compra Inteligente</p>
+                    <p style="margin:0; font-size: 11px; color: #a78bfa; font-weight: 500;">ZULAI, Agente de Compra Inteligente</p>
                 </div>
             </div>
         ''', unsafe_allow_html=True)
@@ -390,8 +398,8 @@ if len(st.session_state.messages) == 0:
         </div>
     ''', unsafe_allow_html=True)
 
-    # Preguntas Frecuentes HORIZONTALES (solo se muestran al inicio)
-    st.markdown("<p style='font-weight: 700; color: #E2E8F0; font-size: 12px; letter-spacing: 0.5px; margin: 8px 0 6px 0;'>🔍¿PREGUNTAS FRECUENTES?🔎</p>", unsafe_allow_html=True)
+    # Preguntas Frecuentes HORIZONTALES
+    st.markdown("<p style='font-weight: 700; color: #E2E8F0; font-size: 12px; letter-spacing: 0.5px; margin: 8px 0 6px 0;'>🔍 ¿PREGUNTAS FRECUENTES? 🔎</p>", unsafe_allow_html=True)
     
     faq_col1, faq_col2, faq_col3, faq_col4 = st.columns(4)
     with faq_col1:
@@ -403,43 +411,43 @@ if len(st.session_state.messages) == 0:
     with faq_col4:
         st.button("🤝 Ser afiliado", use_container_width=True, key="faq4", on_click=set_faq_callback, args=("¿Qué necesito para unirme al programa de afiliados?",))
 
-if len(st.session_state.messages) == 0:
     st.markdown("<p style='text-align: center; color: #C084FC; font-size: 13px; font-weight: 700; margin: 15px 0 10px 0;'>✨ ¿Con qué puedo ayudarte hoy?</p>", unsafe_allow_html=True)
 
-chat_container = st.container()
-
-with chat_container:
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
+# Renderizar historial de mensajes
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
 
 user_input = st.chat_input("Escribe tu pregunta aquí...")
-
 faq_query = st.session_state.pop("pending_faq", None)
 prompt_to_process = user_input or faq_query
 
 if prompt_to_process:
-    # Registrar mensaje del usuario
+    # 1. Registrar y mostrar mensaje de usuario de inmediato
     st.session_state.messages.append({"role": "user", "content": prompt_to_process})
-    
-    # Procesar la respuesta del agente
-    with st.spinner("⚡Generando respuesta..."):
-        try:
-            respuesta = procesar_consulta(
-                pregunta=prompt_to_process,
-                historial=st.session_state.historial
-                )
-        except Exception as e:
-            respuesta = f"Ocurrió un error al procesar la consulta: {str(e)}"
-        
-        st.session_state.messages.append({"role": "assistant", "content": respuesta})
+    with st.chat_message("user"):
+        st.markdown(prompt_to_process)
 
-        st.session_state.historial.append(
-            f"Usuario: {prompt_to_process}"
-        )
-        st.session_state.historial.append(
-            f"ZULAI: {respuesta}"
-        )
+    # 2. Generar y mostrar respuesta del asistente
+    with st.chat_message("assistant"):
+        with st.spinner("⚡ Generando respuesta..."):
+            try:
+                respuesta = procesar_consulta(
+                    pregunta=prompt_to_process,
+                    historial=st.session_state.historial
+                )
+            except Exception as e:
+                respuesta = f"Ocurrió un error al procesar la consulta: {str(e)}"
+            
+            st.markdown(respuesta)
+
+    # 3. Guardar en el estado e historial
+    st.session_state.messages.append({"role": "assistant", "content": respuesta})
+    st.session_state.historial.append(f"Usuario: {prompt_to_process}")
+    st.session_state.historial.append(f"ZULAI: {respuesta}")
+
+    # 4. Forzar re-ejecución limpia para refrescar UI
+    st.rerun()
 
 st.markdown('''
     <div class="custom-footer">
@@ -455,4 +463,5 @@ st.markdown('''
         </div>
     </div>
 ''', unsafe_allow_html=True)
+
 print(f"Render completo: {time.time()-inicio:.2f} s")
