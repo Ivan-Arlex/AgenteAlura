@@ -371,16 +371,16 @@ http://localhost:8501
 ### Respuesta
 
 ```text
-¡Claro! 💳 En BimBam Buy, aceptamos varios métodos de pago para tu comodidad:
 
-• Tarjeta de crédito
-• Tarjeta de débito
-• Transferencia bancaria
-• Pago en efectivo en puntos habilitados
-• Billeteras digitales disponibles por país
-• Cuotas o financiamiento, cuando aplique
+¡Hola! En BimBam Buy aceptamos diversos métodos de pago, los cuales pueden variar según el país y la configuración operativa de tu compra:
 
-Ten en cuenta que la disponibilidad puede variar según el país, la categoría del producto y el monto de la compra. Algunos métodos podrían requerir validación adicional o no estar disponibles para ciertas promociones. ✅
+• Tarjeta de crédito y débito 💳
+• Transferencia bancaria 🏦
+• Pago en efectivo en puntos habilitados 💵
+• Billeteras digitales disponibles por país 📱
+• Cuotas o financiamiento (cuando aplique)
+
+Ten en cuenta que la disponibilidad de estos métodos puede depender del país, la categoría del producto o el monto de la compra. ¡Estamos aquí para ayudarte si tienes alguna otra consulta sobre tu proceso de pago! ✅
 ```
 ![respuesta](assets/metodos-pagos.png)
 ---
@@ -392,9 +392,15 @@ Ten en cuenta que la disponibilidad puede variar según el país, la categoría 
 ### Respuesta
 
 ```text
-¡Claro! La política de BimBam Buy establece las condiciones, plazos y pasos para las solicitudes de reembolso, buscando una experiencia clara y ágil. 📦
+¡Hola! Soy ZULAI, estoy aquí para ayudarte con tu consulta sobre nuestra política de reembolsos en BimBam Buy. 📦
 
-Una vez que tu reembolso es aprobado, se procesa en un plazo de entre 5 y 10 días hábiles, dependiendo del método de pago y el país de origen de la compra. 💳 Generalmente, los reembolsos se realizan al mismo medio de pago utilizado en la compra, salvo que haya una imposibilidad técnica o normativa.
+Aquí tienes los puntos clave sobre nuestro proceso:
+
+• Plazo de procesamiento: Una vez aprobado, el reembolso se gestiona en un periodo de 5 a 10 días hábiles, dependiendo del método de pago y el país de origen. 💳
+• Método de pago: Los reembolsos se realizan al mismo medio utilizado en la compra original. Si existe una imposibilidad técnica o normativa, nuestro equipo de pagos te ofrecerá una alternativa equivalente. ✅
+• Casos especiales: Si el caso requiere validación adicional con el operador logístico o análisis técnico, el plazo podría extenderse, informándote siempre sobre el estado del proceso. 🚚
+
+Si tienes alguna duda específica sobre un pedido o necesitas gestionar una solicitud, recuerda que puedes hacerlo a través de nuestros canales oficiales: centro de ayuda en la web, formulario de postventa, chat de soporte o correo de atención al cliente. ¡Estoy a tu disposición!
 ```
 ![respuesta](assets/politica-reembolso.png)
 ---
@@ -406,23 +412,13 @@ Una vez que tu reembolso es aprobado, se procesa en un plazo de entre 5 y 10 dí
 ### Respuesta
 
 ```text
-¡Hola! 📦 Los tiempos de entrega en BimBam Buy dependen de varios factores como el país, ciudad, zona de cobertura, tamaño y peso del producto, inventario, validaciones de pago y eventos operativos o climáticos.
+¡Hola! Con gusto te informo sobre nuestros tiempos de entrega 🚚. Estos dependen de la zona de destino y el tipo de producto, pero en condiciones normales manejamos los siguientes plazos:
 
-El proceso se divide en:
+• Zonas urbanas principales: 2 a 5 días hábiles.
+• Zonas secundarias: 4 a 8 días hábiles.
+• Zonas de cobertura extendida: 6 a 12 días hábiles.
 
-• Preparación del pedido:
-
-◦ Validación de pago: 0 a 1 día hábil 💳
-◦ Alistamiento y empaque: 1 a 2 días hábiles
-◦ Despacho al operador logístico: 1 día hábil adicional 🚚
-
-• Entrega estimada:
-
-◦ Zonas urbanas principales: 2 a 5 días hábiles ✅
-◦ Zonas secundarias: 4 a 8 días hábiles
-◦ Zonas de cobertura extendida: 6 a 12 días hábiles
-
-Ten en cuenta que en campañas especiales o alta demanda, los tiempos pueden ser superiores a los estimados.
+Ten en cuenta que, antes de la entrega, el pedido requiere un proceso de preparación que incluye la validación de pago (0 a 1 día), alistamiento y empaque (1 a 2 días) y el despacho al operador logístico (1 día adicional) ✅. En casos de alta demanda o eventos especiales, estos tiempos podrían extenderse, pero siempre te mantendremos informado 📦.
 ``` 
 ![respuesta](assets/tiempo-envio.png)
 ---
