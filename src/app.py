@@ -4,6 +4,10 @@ from pathlib import Path
 import streamlit as st
 from graph import procesar_consulta
 
+import time
+
+inicio = time.time()
+
 st.set_page_config(
     page_title="BimBam Buy - ZULAI, Agente de Compra Inteligente",
     page_icon="🛒",
@@ -21,14 +25,13 @@ def get_image_base64(path: str) -> str:
             return f"data:image/{ext};base64,{encoded}"
     return ""
 
-@st.cache_data(ttl=2)
 def format_file_size(bytes_size: int) -> str:
     """Formatea el tamaño de archivo a KB o MB."""
     if bytes_size < 1024 * 1024:
         return f"{bytes_size / 1024:.1f} KB"
     return f"{bytes_size / (1024 * 1024):.1f} MB"
 
-@st.cache_data(ttl=5)
+@st.cache_data(ttl=300)
 def get_docs_list():
     """Lee dinámicamente la carpeta de documentos (src/docs o docs)."""
     possible_paths = [
@@ -277,6 +280,9 @@ st.markdown("""
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+if "historial" not in st.session_state:
+    st.session_state.historial = []
+
 def clear_chat_callback():
     st.session_state.messages = []
 
@@ -417,15 +423,23 @@ if prompt_to_process:
     st.session_state.messages.append({"role": "user", "content": prompt_to_process})
     
     # Procesar la respuesta del agente
-    with st.spinner("ZULAI esta procesando tu Consulta..."):
+    with st.spinner("⚡Generando respuesta..."):
         try:
-            respuesta = procesar_consulta(prompt_to_process)
+            respuesta = procesar_consulta(
+                pregunta=prompt_to_process,
+                historial=st.session_state.historial
+                )
         except Exception as e:
             respuesta = f"Ocurrió un error al procesar la consulta: {str(e)}"
         
         st.session_state.messages.append({"role": "assistant", "content": respuesta})
-    
-    st.rerun()
+
+        st.session_state.historial.append(
+            f"Usuario: {prompt_to_process}"
+        )
+        st.session_state.historial.append(
+            f"ZULAI: {respuesta}"
+        )
 
 st.markdown('''
     <div class="custom-footer">
@@ -441,3 +455,4 @@ st.markdown('''
         </div>
     </div>
 ''', unsafe_allow_html=True)
+print(f"Render completo: {time.time()-inicio:.2f} s")

@@ -115,7 +115,7 @@ search_type="similarity_score_threshold"
 
 score_threshold = 0.3
 
-k = 4
+k = 3
 ```
 
 ---
@@ -435,7 +435,7 @@ La interfaz utiliza:
 procesar_consulta()
 ```
 
-para enviar preguntas al grafo y obtener respuestas. :
+para enviar preguntas y historial al grafo y obtener respuestas. :
 
 ---
 

@@ -1,6 +1,7 @@
 from agent import AgentState, buscar_contexto, generar_respuesta
 from langgraph.graph import StateGraph, START, END 
 import os
+from typing import List
 
 grafo_compilado = None
 
@@ -54,17 +55,20 @@ def obtener_grafo():
 
     return grafo_compilado
 
-def procesar_consulta(pregunta_usuario: str)-> str:
+def procesar_consulta(pregunta: str, historial: List[str])-> str:
     """
     Función principal para procesar la consulta del usuario.
     - Obtiene la instancia del grafo de la funcion obtener_grafo (patron Singleton).
     """
 
-    print(f"\n--- Procesando consulta: '{pregunta_usuario}' ---")
+    print(f"\n--- Procesando consulta: '{pregunta}' ---")
 
     grafo = obtener_grafo()
     
-    estado_inicial = {"pregunta": pregunta_usuario}
+    estado_inicial = {
+        "pregunta": pregunta,
+        "historial": historial
+        }
     
     resultado = grafo.invoke(estado_inicial)
     
